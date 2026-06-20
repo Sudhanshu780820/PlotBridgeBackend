@@ -12,7 +12,7 @@ require('dotenv').config();
 const app = express();
 
 app.use(cors({
-  origin: "https://plotbridge-mern.vercel.app", // Make sure this matches your Vercel URL
+  origin: "https://plot-bridge-fontend.vercel.app", // Make sure this matches your Vercel URL
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
@@ -32,7 +32,7 @@ const server = http.createServer(app);
 // --- 2. SETUP SOCKET.IO ---
 const io = new Server(server, {
   cors: {
-    origin: "https://plotbridge-mern.vercel.app", 
+    origin: "https://plot-bridge-fontend.vercel.app", 
     methods: ["GET", "POST"]
   }
 });

@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= land.LandName %> | PlotBridge</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght=300;400;600;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .leaflet-container { z-index: 1 !important; }
+        /* Hide scrollbars for photo galleries while keeping functionality */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans">
+
+    <nav class="bg-white/80 backdrop-blur-md border-b border-slate-100 p-5 sticky top-0 z-50">
+        <div class="container mx-auto flex justify-between items-center max-w-7xl">
+            <a href="/" class="text-2xl font-extrabold tracking-tight text-emerald-600">Plot<span class="text-slate-800">Bridge</span></a>
+            <a href="/browse" class="group flex items-center text-sm font-semibold text-slate-500 hover:text-emerald-600 transition-colors">
+                <span class="mr-2 transform group-hover:-translate-x-1 transition-transform">←</span> Back to Listings
+            </a>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-8 max-w-7xl">
+        
+        <div class="mb-6">
+            <span class="inline-block bg-emerald-100 text-emerald-700 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-2">
+                <%= land.category %>
+            </span>
+            <h1 class="text-2xl md:text-4xl font-extrabold text-slate-900 leading-tight"><%= land.LandName %></h1>
+            <p class="text-sm text-slate-500 mt-1 flex items-center">
+                <svg class="w-4 h-4 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <%= land.location %>
+            </p>
+        </div>
+
+        <section class="mb-10">
+            <% if (land.photo && land.photo.length > 0) { %>
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 rounded-3xl overflow-hidden bg-white p-2 shadow-xl shadow-slate-100 relative">
+                    
+                    <div class="<%= land.photo.length > 1 ? 'md:col-span-8' : 'md:col-span-12' %> aspect-[16/10] md:aspect-auto md:h-[480px] rounded-2xl overflow-hidden bg-slate-100 relative group">
+                        <img src="<%= land.photo[0] %>" alt="<%= land.LandName %>" class="w-full h-full object-cover transform group-hover:scale-101 transition duration-500 cursor-pointer" onclick="openGalleryModal(0)">
+                    </div>
+
+                    <% if (land.photo.length > 1) { %>
+                        <div class="md:col-span-4 flex md:flex-col gap-3 h-32 md:h-[480px] overflow-x-auto md:overflow-x-hidden md:overflow-y-auto no-scrollbar">
+                            <% land.photo.slice(1, 4).forEach((img, index) => { %>
+                                <div class="flex-shrink-0 w-44 md:w-full h-full md:h-[152px] rounded-2xl overflow-hidden bg-slate-100 relative group">
+                                    <img src="<%= img %>" alt="Property Image <%= index + 2 %>" class="w-full h-full object-cover transform group-hover:scale-103 transition duration-500 cursor-pointer" onclick="openGalleryModal(<%= index + 1 %>)">
+                                    
+                                    <% if (index === 2 && land.photo.length > 4) { %>
+                                        <div onclick="openGalleryModal(3)" class="absolute inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center text-white font-bold text-sm cursor-pointer hover:bg-slate-900/50 transition">
+                                            +<%= land.photo.length - 4 %> More Photos
+                                        </div>
+                                    <% } %>
+                                </div>
+                            <% }) %>
+                        </div>
+                    <% } %>
+
+                    <button onclick="openGalleryModal(0)" class="absolute bottom-6 right-6 bg-white/95 backdrop-blur shadow-md hover:bg-white border border-slate-200/60 font-bold text-xs px-4 py-2.5 rounded-xl text-slate-800 flex items-center gap-2 transition active:scale-95">
+                        <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        Show all photos
+                    </button>
+                </div>
+            <% } else { %>
+                <div class="aspect-[21/9] bg-slate-100 rounded-3xl flex items-center justify-center text-slate-400 font-medium">
+                    No Images Available
+                </div>
+            <% } %>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            <div class="lg:col-span-8 space-y-6">
+                <div class="bg-white p-8 md:p-10 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                    <h2 class="text-2xl font-bold text-slate-900 mb-6 flex items-center">
+                        <span class="w-8 h-1 bg-emerald-500 rounded-full mr-3"></span>
+                        Property Overview
+                    </h2>
+                    <p class="text-slate-600 leading-loose text-lg whitespace-pre-line">
+                        <%= land.description || 'No description provided.' %>
+                    </p>
+                </div>
+            </div>
+
+            <div class="lg:col-span-4 space-y-8">
+                <div class="bg-slate-900 text-white p-8 rounded-[2.5rem] shadow-2xl shadow-slate-200 relative overflow-hidden">
+                    <div class="absolute -top-10 -right-10 w-32 h-32 bg-emerald-500/20 rounded-full blur-3xl"></div>
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mb-2">Asking Price</p>
+                    <div class="flex items-baseline gap-2 mb-8">
+                        <span class="text-4xl font-extrabold tracking-tighter">
+                            <% if (land.priceUnit === 'Dollar') { %>$<% } else { %>₹<% } %><%= parseFloat(land.price).toLocaleString('en-IN') %>
+                        </span>
+                        <span class="text-emerald-400 font-bold uppercase text-sm"><%= land.priceUnit %></span>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/10">
+                            <span class="text-slate-400 text-sm">Land Area</span>
+                            <span class="font-bold text-lg"><%= land.LandSize %> <span class="text-xs font-normal opacity-60"><%= land.sizeUnit %></span></span>
+                        </div>
+                        <button onclick="toggleModal()" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-extrabold py-5 rounded-2xl transition-all shadow-lg active:scale-98">
+                            Inquire Now
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                    <h2 class="text-xl font-bold text-slate-900 mb-6 flex items-center">
+                        <span class="w-8 h-1 bg-emerald-500 rounded-full mr-3"></span>
+                        Location on Map
+                    </h2>
+                    <div id="viewMap" class="h-80 rounded-3xl shadow-inner border border-slate-100 bg-slate-50"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="galleryModal" class="fixed inset-0 bg-slate-950/95 z-[200] hidden flex-col justify-between p-4 md:p-8 animate-fade-in">
+        <div class="flex justify-between items-center text-white">
+            <span id="galleryCounter" class="text-sm font-semibold tracking-wider bg-slate-900 px-4 py-2 rounded-full">1 / 1</span>
+            <button onclick="closeGalleryModal()" class="bg-slate-900 hover:bg-slate-800 text-white w-10 h-10 rounded-full flex items-center justify-center text-2xl font-light transition shadow active:scale-90">&times;</button>
+        </div>
+        
+        <div class="flex items-center justify-between max-w-5xl mx-auto w-full h-[70vh]">
+            <button onclick="changeGalleryImage(-1)" class="bg-slate-900/80 hover:bg-slate-800 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold transition active:scale-95 shadow">&#8592;</button>
+            <div class="h-full w-full max-w-3xl px-4 flex items-center justify-center">
+                <img id="galleryViewerSrc" src="" alt="Gallery Image Viewer View" class="max-h-full max-w-full object-contain rounded-2xl transition duration-300">
+            </div>
+            <button onclick="changeGalleryImage(1)" class="bg-slate-900/80 hover:bg-slate-800 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl font-bold transition active:scale-95 shadow">&#8594;</button>
+        </div>
+
+        <div class="overflow-x-auto py-4 flex justify-center gap-2 max-w-xl mx-auto w-full no-scrollbar">
+            <% if (land.photo && land.photo.length > 0) { %>
+                <% land.photo.forEach((img, idx) => { %>
+                    <img src="<%= img %>" onclick="setGalleryViewerIndex(<%= idx %>)" class="gallery-thumb-indicator h-12 w-20 object-cover rounded-md border-2 border-transparent opacity-40 hover:opacity-100 cursor-pointer transition">
+                <% }) %>
+            <% } %>
+        </div>
+    </div>
+
+    <div id="enquiryModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden transform transition-all">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-extrabold text-slate-900">Request Details</h2>
+                    <button onclick="toggleModal()" class="text-slate-400 hover:text-slate-600 text-2xl">&times;</button>
+                </div>
+                
+                <form id="enquiryForm" class="space-y-4">
+                    <input type="hidden" name="landId" value="<%= land._id %>">
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Full Name</label>
+                        <input type="text" name="name" required class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Email</label>
+                            <input type="email" name="email" required class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-2 focus:ring-emerald-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Phone</label>
+                            <input type="tel" name="phone" required class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-2 focus:ring-emerald-500 outline-none">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-2">Message</label>
+                        <textarea name="message" rows="3" class="w-full px-4 py-3 rounded-2xl bg-slate-50 border border-slate-100 focus:ring-2 focus:ring-emerald-500 outline-none">I am interested in <%= land.LandName %>.</textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-emerald-600 text-white font-bold py-4 rounded-2xl hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-100 mt-4">
+                        Send Enquiry
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <footer class="container mx-auto px-4 py-12 text-center text-slate-400 text-xs tracking-widest uppercase border-t border-slate-100 mt-20">
+        &copy; 2026 PlotBridge Luxury Real Estate
+    </footer>
+
+    <script>
+        var lat = parseFloat("<%= land.lat || 0 %>");
+        var lng = parseFloat("<%= land.lng || 0 %>");
+
+        if (lat !== 0 && lng !== 0 && !isNaN(lat) && !isNaN(lng)) {
+            var map = L.map('viewMap', {
+                scrollWheelZoom: false
+            }).setView([lat, lng], 15);
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
+
+            L.marker([lat, lng]).addTo(map)
+                .bindPopup("<b><%= land.LandName %></b><br><%= land.location %>")
+                .openPopup();
+
+            setTimeout(function() { map.invalidateSize(); }, 500);
+        } else {
+            document.getElementById('viewMap').innerHTML = 
+                "<div class='flex items-center justify-center h-full text-slate-400 italic text-sm'>Map coordinates not available for this property</div>";
+        }
+
+        // 🛠️ NEW: Fullscreen Responsive Lightbox Carousel Management Core Logic Engine
+        // Pulling your dynamic array directly from EJS parsing structures into clean client side JS environment arrays safely
+        var imagesArray = [];
+        <% if (land.photo && land.photo.length > 0) { %>
+            imagesArray = <%- JSON.stringify(land.photo) %>;
+        <% } %>
+
+        var currentGalleryIndex = 0;
+
+        function openGalleryModal(index) {
+            if (!imagesArray || imagesArray.length === 0) return;
+            currentGalleryIndex = index;
+            document.getElementById('galleryModal').classList.remove('hidden');
+            document.getElementById('galleryModal').classList.add('flex');
+            updateGalleryViewer();
+        }
+
+        function closeGalleryModal() {
+            document.getElementById('galleryModal').classList.add('hidden');
+            document.getElementById('galleryModal').classList.remove('flex');
+        }
+
+        function changeGalleryImage(direction) {
+            currentGalleryIndex += direction;
+            if (currentGalleryIndex >= imagesArray.length) currentGalleryIndex = 0;
+            if (currentGalleryIndex < 0) currentGalleryIndex = imagesArray.length - 1;
+            updateGalleryViewer();
+        }
+
+        function setGalleryViewerIndex(index) {
+            currentGalleryIndex = index;
+            updateGalleryViewer();
+        }
+
+        function updateGalleryViewer() {
+            // Update center structural img link src
+            document.getElementById('galleryViewerSrc').src = imagesArray[currentGalleryIndex];
+            // Display string counter
+            document.getElementById('galleryCounter').innerText = (currentGalleryIndex + 1) + " / " + imagesArray.length;
+            
+            // Manage highlighting active states around lower thumbnail layout elements
+            const thumbs = document.querySelectorAll('.gallery-thumb-indicator');
+            thumbs.forEach((thumb, index) => {
+                if (index === currentGalleryIndex) {
+                    thumb.classList.add('border-emerald-500', 'opacity-100');
+                    thumb.classList.remove('opacity-40', 'border-transparent');
+                } else {
+                    thumb.classList.remove('border-emerald-500', 'opacity-100');
+                    thumb.classList.add('opacity-40', 'border-transparent');
+                }
+            });
+        }
+
+        // Support physical keyboard arrows inside fullscreen modal view matrix parameters safely
+        document.addEventListener('keydown', function(e) {
+            const modal = document.getElementById('galleryModal');
+            if (modal && !modal.classList.contains('hidden')) {
+                if (e.key === "Escape") closeGalleryModal();
+                if (e.key === "ArrowRight") changeGalleryImage(1);
+                if (e.key === "ArrowLeft") changeGalleryImage(-1);
+            }
+        });
+
+        // Form Inquiry Modal functions
+        function toggleModal() {
+            const modal = document.getElementById('enquiryModal');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        if (document.getElementById('enquiryForm')) {
+            document.getElementById('enquiryForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+
+                try {
+                    const response = await fetch('/enquire', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    const result = await response.json();
+                    
+                    if (response.ok) {
+                        alert('✓ Success! Your enquiry has been sent.');
+                        toggleModal();
+                        e.target.reset();
+                    } else {
+                        alert('Error: ' + (result.message || 'Could not send enquiry'));
+                    }
+                } catch (err) {
+                    alert('Network error. Please try again.');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

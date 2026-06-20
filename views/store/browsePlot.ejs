@@ -1,0 +1,146 @@
+<%- include('../partials/head') %>
+<%- include('../partials/nav') %>
+
+<body class="bg-slate-50 font-sans antialiased">
+
+  <main class="pt-32 pb-20 px-4 max-w-7xl mx-auto">
+    
+    <!-- Unified Search and Filter Bar Section -->
+    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 mb-10">
+      <form action="/search" method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+           <input type="hidden" name="source" value="browse">
+          <!-- Search Keyword Input with Icon -->
+          <div class="relative md:col-span-2">
+
+              <input 
+                  type="text" 
+                  name="search" 
+                  
+                  placeholder="Search by city, location or title..." 
+                  value="<%= locals.searchVal ? searchVal : '' %>"
+                  class="w-full pl-12 pr-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none transition-all"
+              />
+              <svg class="w-5 h-5 text-slate-400 absolute left-4 top-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+          </div>
+
+          <!-- Filter by Category Dropdown -->
+          <div>
+              <select name="category" class="w-full px-4 py-3 bg-slate-50 border-none rounded-2xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none cursor-pointer">
+                  <option value="">All Categories</option>
+                  <option value="Residential" <%= (locals.catVal === 'Residential') ? 'selected' : '' %>>Residential</option>
+                  <option value="Agricultural" <%= (locals.catVal === 'Agricultural') ? 'selected' : '' %>>Agricultural</option>
+                  <option value="Commercial" <%= (locals.catVal === 'Commercial') ? 'selected' : '' %>>Commercial</option>
+                  <option value="Industrial" <%= (locals.catVal === 'Industrial') ? 'selected' : '' %>>Industrial</option>
+              </select>
+          </div>
+
+          <!-- Submit Search Button -->
+          <div>
+              <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-2xl transition duration-200 shadow-md shadow-emerald-100">
+                  Search Properties
+              </button>
+          </div>
+      </form>
+    </div>
+
+    <!-- Section Heading Title -->
+    <div class="mb-8">
+      <h2 class="text-3xl font-black text-slate-800 tracking-tight">Available Plots</h2>
+      <p class="text-slate-400 font-medium mt-1">Explore verified land listings across Madhya Pradesh.</p>
+    </div>
+
+    <!-- Properties Listings Responsive Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      
+      <% if (registeredLand && registeredLand.length > 0) { %>
+        <% registeredLand.forEach(plot => { %>
+          <div class="group bg-white rounded-[2rem] overflow-hidden border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between">
+            
+            <div>
+              <!-- Land Card Thumbnail Photo -->
+              <div class="relative h-48 overflow-hidden bg-slate-100">
+                <% if (plot.photo && plot.photo.length > 0) { %>
+                  <img src="<%= plot.photo[0] %>" alt="<%= plot.LandName %>" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                <% } else { %>
+                  <div class="w-full h-full flex items-center justify-center text-slate-300 font-bold">No Image Available</div>
+                <% } %>
+                <span class="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest text-emerald-600 shadow-sm">
+                  <%= plot.category %>
+                </span>
+              </div>
+
+              <!-- Card Body Content -->
+              <div class="p-6">
+                <div class="flex justify-between items-start mb-2">
+                  <h3 class="font-bold text-slate-800 text-lg leading-tight truncate mr-2" title="<%= plot.LandName %>">
+                    <%= plot.LandName %>
+                  </h3>
+                  <div class="bg-emerald-50 p-1 rounded-md shrink-0">
+                    <svg class="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.64.304 1.25.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                    </svg>
+                  </div>
+                </div>
+
+                <p class="text-slate-500 text-xs flex items-center mb-3 truncate">
+                  <svg class="w-3 h-3 mr-1 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                  </svg>
+                  <%= plot.location %>
+                </p>
+                
+                <div class="flex items-center text-slate-400 text-[11px] mb-4">
+                  <svg class="w-3.5 h-3.5 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                  </svg>
+                  <span>Listed: <%= plot.createdAt ? plot.createdAt.toLocaleDateString('en-IN', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recently' %></span>
+                </div>
+
+                <!-- Price and Size Row -->
+                <div class="flex items-center justify-between pt-4 border-t border-slate-100">
+                  <div>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Price</p>
+                    <p class="text-lg font-black text-emerald-600">
+                      ₹<%= plot.price %> 
+                      <span class="text-[10px] font-bold uppercase text-emerald-700 ml-0.5"><%= plot.priceUnit %></span>
+                    </p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Area</p>
+                    <p class="text-sm font-bold text-slate-700">
+                      <%= plot.LandSize %> 
+                      <span class="text-[10px] font-medium text-slate-400 ml-0.5"><%= plot.sizeUnit %></span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Persistent Button Footers inside Card -->
+            <div class="px-6 pb-6 pt-0 space-y-2">
+              <a href="/plot/<%= plot._id %>" class="block w-full text-center py-2.5 bg-slate-900 text-white rounded-xl font-bold text-sm hover:bg-emerald-600 transition-colors duration-200 shadow-sm">
+                View Details
+              </a>
+              <% if (locals.currentUser && plot.host && plot.host.toString() === currentUser._id.toString()) { %>
+                <a href="/land/edit-land/<%= plot._id %>?editing=true" class="block w-full text-center py-2.5 bg-amber-500 text-white rounded-xl font-bold text-sm hover:bg-amber-600 transition-colors duration-200 shadow-sm">
+                  Edit Listing
+                </a>
+              <% } %>
+            </div>
+
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="col-span-full text-center py-16 bg-white rounded-3xl border border-slate-100 p-8">
+          <p class="text-slate-400 text-lg font-medium">No land plots found matching your criteria.</p>
+          <a href="/browse" class="text-emerald-600 font-bold hover:underline inline-block mt-3 text-sm">Clear Search Filters</a>
+        </div>
+      <% } %>
+
+    </div>
+  </main>
+
+</body>
+</html>

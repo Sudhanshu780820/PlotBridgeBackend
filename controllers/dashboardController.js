@@ -46,4 +46,4 @@ const getMylistings = async (req, res) => {
     res.status(500).json({ message: "Error fetching your listings" });
   }};
 
-module.exports = { getDashboardStats };
+module.exports = { getDashboardStats, getMylistings };

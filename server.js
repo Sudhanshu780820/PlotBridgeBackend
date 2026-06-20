@@ -7,6 +7,7 @@ const { Server } = require('socket.io');
 
 const plotRoutes = require('./routes/plotRoutes');
 const authRoutes = require('./routes/authRouter');
+const dashboardRoutes= require('./routes/dashboardRoutes')
 require('dotenv').config();
 
 const app = express();
@@ -57,6 +58,7 @@ io.on("connection", (socket) => {
 // --- ROUTES ---
 app.use('/api/auth', authRoutes);
 app.use('/api/plots', plotRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend working' });

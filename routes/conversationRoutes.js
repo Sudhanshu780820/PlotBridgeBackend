@@ -28,6 +28,34 @@ router.post('/start', authMiddleware, async (req, res) => {
     res.status(500).json({ message: "Server error starting chat" });
   }
 });
+
+// GET /api/conversations
+router.get("/", authMiddleware, async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const conversations = await Conversation.find({
+      participants: { $in: [userId] }
+    })
+      .populate(
+        "participants",
+        "fullName profilePhoto userType"
+      )
+      .populate(
+        "plotId",
+        "title location images"
+      )
+      .sort({ updatedAt: -1 });
+
+    res.status(200).json(conversations);
+
+  } catch (error) {
+    console.error("Inbox Fetch Error:", error);
+    res.status(500).json({
+      message: "Server error fetching conversations"
+    });
+  }
+});
 // GET /api/conversations
 router.get("/:conversationId", authMiddleware, async (req, res) => {
   try {

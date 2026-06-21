@@ -1,38 +1,28 @@
 // controllers/dashboardController.js
 const Plot = require("../models/Plot"); // Assuming you have a Plot/Property model
 
- const getDashboardStats = async (req, res) => {
+const getDashboardStats = async (req, res) => {
   try {
-    const userId = req.user.id; // Comes from your JWT authentication middleware
+    console.log("req.user =", req.user);
 
-    // Count properties belonging to this specific user
+    const userId = req.user.id;
+    console.log("userId =", userId);
+
     const totalListings = await Plot.countDocuments({ seller: userId });
-    
-    const activeListings = await Plot.countDocuments({ 
-      seller: userId, 
-      status: "Active" 
-    });
-    
-    const soldProperties = await Plot.countDocuments({ 
-      seller: userId, 
-      status: "Sold" 
-    });
+    console.log("totalListings =", totalListings);
 
-    // Sum all views from the user's plots (Requires a 'views' number field in your Plot model)
-    const plots = await Plot.find({ seller: userId }, "views");
-    const totalViews = plots.reduce((sum, plot) => sum + (plot.views || 0), 0);
+    const plots = await Plot.find({ seller: userId });
+    console.log("plots =", plots);
 
-    // Send the data back to the React component
-    res.status(200).json({
+    res.json({
       totalListings,
-      activeListings,
-      soldProperties,
-      totalViews
+      activeListings: 0,
+      soldProperties: 0,
+      totalViews: 0,
     });
-
   } catch (error) {
-    console.error("Stats Error:", error);
-    res.status(500).json({ message: "Error fetching dashboard stats" });
+    console.error(error);
+    res.status(500).json({ message: error.message });
   }
 };
 

@@ -8,6 +8,7 @@ const User = require("../models/User");
 
 router.post("/:plotId", authMiddleware, async (req, res) => {
   try {
+    console.log("Saved Routes Loaded");
     const userId = req.user.id;
     const { plotId } = req.params;
 

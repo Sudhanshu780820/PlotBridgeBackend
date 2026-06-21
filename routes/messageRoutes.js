@@ -22,19 +22,22 @@ router.post('/', authMiddleware, async (req, res) => {
   }
 });
 
-// 2. GET: Fetch all old messages for a specific chat room
-router.get('/:conversationId', authMiddleware, async (req, res) => {
-  try {
-    const messages = await Message.find({
-      conversationId: req.params.conversationId
-    })
-      .populate("senderId", "fullName profilePhoto")
-      .sort({ createdAt: 1 });
 
-    res.status(200).json(messages);
+// GET /api/conversations/:id (Fetch a single conversation's details)
+router.get('/:id', authMiddleware, async (req, res) => {
+  try {
+    const conversation = await Conversation.findById(req.params.id)
+      .populate('participants', 'fullName profilePhoto userType')
+      .populate('plotId', 'title location price images currency');
+
+    if (!conversation) {
+      return res.status(404).json({ message: "Conversation not found" });
+    }
+
+    res.status(200).json(conversation);
   } catch (error) {
-    console.error("Error fetching messages:", error);
-    res.status(500).json({ message: "Server error fetching messages" });
+    console.error("Error fetching single conversation:", error);
+    res.status(500).json({ message: "Server error fetching conversation details" });
   }
 });
 

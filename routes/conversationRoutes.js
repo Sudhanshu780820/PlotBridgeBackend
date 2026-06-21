@@ -7,17 +7,24 @@ const Conversation=require('../models/Conversation')
 router.post('/start', authMiddleware, async (req, res) => {
   try {
     const { sellerId, plotId } = req.body;
-    const buyerId = req.user.id; // Comes from your authMiddleware
+    const buyerId = req.user.id;
 
-    // Create a unique chat room ID combining the buyer, seller, and plot
-    // (In the future, you can save this to a MongoDB Conversation model)
-    const conversationId = `${buyerId}_${sellerId}_${plotId}`;
+    let conversation = await Conversation.findOne({
+      participants: { $all: [buyerId, sellerId] },
+      plotId
+    });
 
-    // Send the ID back to React so it can open the ChatPage
-    res.status(200).json({ _id: conversationId });
-    
+    if (!conversation) {
+      conversation = await Conversation.create({
+        participants: [buyerId, sellerId],
+        plotId
+      });
+    }
+
+    res.status(200).json(conversation);
+
   } catch (error) {
-    console.error("Error starting conversation:", error);
+    console.error(error);
     res.status(500).json({ message: "Server error starting chat" });
   }
 });

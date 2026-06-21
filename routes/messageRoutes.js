@@ -25,9 +25,11 @@ router.post('/', authMiddleware, async (req, res) => {
 // 2. GET: Fetch all old messages for a specific chat room
 router.get('/:conversationId', authMiddleware, async (req, res) => {
   try {
-    const messages = await Message.find({ 
-      conversationId: req.params.conversationId 
-    }).sort({ createdAt: 1 }); // Sort by oldest to newest
+    const messages = await Message.find({
+      conversationId: req.params.conversationId
+    })
+      .populate("senderId", "fullName profilePhoto")
+      .sort({ createdAt: 1 });
 
     res.status(200).json(messages);
   } catch (error) {

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
+const Conversation=require('../models/Conversation')
 
 // POST /api/conversations/start
 router.post('/start', authMiddleware, async (req, res) => {
@@ -20,21 +21,26 @@ router.post('/start', authMiddleware, async (req, res) => {
     res.status(500).json({ message: "Server error starting chat" });
   }
 });
-// GET /api/conversations (Fetch all chats for the logged-in user)
+// GET /api/conversations
 router.get('/', authMiddleware, async (req, res) => {
   try {
-    const userId = req.user.id;
+    // 1. Safely grab the user ID (handles both common JWT formats)
+    const userId = req.user.id || req.user._id;
 
-    // Find all conversations where this user's ID is in the participants array
-    const conversations = await Conversation.find({ participants: userId })
-      .populate('participants', 'fullName profilePhoto userType') // Grab the names and photos of the people
-      .populate('plotId', 'title location') // Grab the title of the plot they are discussing
-      .sort({ updatedAt: -1 }); // Sort by most recently active
+    // 2. Use $in to safely search inside the participants array
+    const conversations = await Conversation.find({ participants: { $in: [userId] } })
+      .populate('participants', 'fullName profilePhoto userType') 
+      .populate('plotId', 'title location') 
+      .sort({ updatedAt: -1 }); 
 
     res.status(200).json(conversations);
   } catch (error) {
-    console.error("Error fetching conversations:", error);
-    res.status(500).json({ message: "Server error fetching inbox" });
+    console.error("Inbox Fetch Error:", error);
+    // 3. Send the EXACT error message to the frontend so we can see it!
+    res.status(500).json({ 
+      message: "Server error fetching inbox", 
+      details: error.message 
+    });
   }
 });
 

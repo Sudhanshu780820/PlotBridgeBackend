@@ -24,21 +24,23 @@ router.post('/', authMiddleware, async (req, res) => {
 
 
 // GET /api/conversations/:id (Fetch a single conversation's details)
-router.get('/:id', authMiddleware, async (req, res) => {
+router.get("/:conversationId", authMiddleware, async (req, res) => {
   try {
-    const conversation = await Conversation.findById(req.params.id)
-      .populate('participants', 'fullName profilePhoto userType')
-      .populate('plotId', 'title location price images currency');
+    const messages = await Message.find({
+      conversationId: req.params.conversationId,
+    })
+      .populate(
+        "senderId",
+        "fullName profilePhoto userType"
+      )
+      .sort({ createdAt: 1 });
 
-    if (!conversation) {
-      return res.status(404).json({ message: "Conversation not found" });
-    }
-
-    res.status(200).json(conversation);
+    res.status(200).json(messages);
   } catch (error) {
-    console.error("Error fetching single conversation:", error);
-    res.status(500).json({ message: "Server error fetching conversation details" });
+    console.error(error);
+    res.status(500).json({
+      message: "Server error fetching messages",
+    });
   }
 });
-
 module.exports = router;

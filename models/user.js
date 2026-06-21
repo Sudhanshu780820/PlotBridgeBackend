@@ -8,7 +8,13 @@ const userSchema = new mongoose.Schema({
     password: { type: String, required: true },
     userType: { type: String, enum: ['Buyer', 'Seller'], required: true },
     profilePhoto: { type: String, required: true }, // Will store secure cloudinary URL
-    identityCard: { type: String, required: true } // Will store secure cloudinary URL
+    identityCard: { type: String, required: true },
+    savedProperties: [
+  {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Plot"
+  }
+]
    
 });
 module.exports= mongoose.model('User', userSchema);

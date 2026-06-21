@@ -63,6 +63,7 @@ app.use('/api/plots', plotRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/conversations', conversationRoutes);
 app.use('/api/messages',messageRoutes);
+app.use("/api/saved-properties", savedRoutes);
 
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend working' });

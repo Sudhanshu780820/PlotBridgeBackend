@@ -9,12 +9,17 @@ const userSchema = new mongoose.Schema({
     userType: { type: String, enum: ['Buyer', 'Seller'], required: true },
     profilePhoto: { type: String, required: true }, // Will store secure cloudinary URL
     identityCard: { type: String, required: true },
-    savedProperties: [
-  {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Plot"
+     savedProperties: {
+    type: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Plot"
+      }
+    ],
+    default: []
   }
-]
+
+}, { timestamps: true });
    
-});
+
 module.exports= mongoose.model('User', userSchema);

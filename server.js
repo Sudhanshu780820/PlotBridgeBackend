@@ -10,6 +10,7 @@ const authRoutes = require('./routes/authRouter');
 const dashboardRoutes= require('./routes/dashboardRoutes');
 const conversationRoutes=require('./routes/conversationRoutes');
 const messageRoutes=require('./routes/messageRoutes');
+const savedRoutes=require('./routes/savedRoutes')
 require('dotenv').config();
 
 const app = express();

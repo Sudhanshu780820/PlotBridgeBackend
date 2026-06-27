@@ -3,7 +3,8 @@ const router = express.Router();
 
 const {
     searchProperties,
-    compareProperties
+    compareProperties,
+    chatAI
 } = require("../controllers/aiController");
 
 router.post("/search", searchProperties);

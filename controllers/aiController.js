@@ -1,113 +1,78 @@
 const Plot = require("../models/Plot");
+const { extractFilters } = require("../services/aiService");
 
 const searchProperties = async (req, res) => {
+    // Keep your existing code
+};
 
+const compareProperties = async (req, res) => {
+    // Keep your existing code
+};
+
+const chatAI = async (req, res) => {
     try {
+        const { message } = req.body;
 
-        const {
-            city,
-            budget,
-            category,
-            minArea,
-            maxArea
-        } = req.body;
+        const filters = await extractFilters(message);
 
         let query = {
             status: "Available"
         };
 
-        if(city){
-
+        if (filters.city) {
             query.location = {
-                $regex: city,
+                $regex: filters.city,
                 $options: "i"
             };
-
         }
 
-        if(category){
-
-            query.category = category;
-
+        if (filters.category) {
+            query.category = filters.category;
         }
 
-        if(budget){
-
+        if (filters.budget) {
             query.price = {
-                $lte: budget
+                $lte: filters.budget
             };
-
         }
 
-        if(minArea || maxArea){
-
+        if (filters.minArea || filters.maxArea) {
             query.size = {};
 
-            if(minArea)
-                query.size.$gte = minArea;
+            if (filters.minArea)
+                query.size.$gte = filters.minArea;
 
-            if(maxArea)
-                query.size.$lte = maxArea;
-
+            if (filters.maxArea)
+                query.size.$lte = filters.maxArea;
         }
 
-        const properties = await Plot.find(query);
+        const properties = await Plot.find(query).limit(5);
+
+        if (properties.length === 0) {
+            return res.json({
+                reply: "Sorry, I couldn't find any matching properties.",
+                properties: []
+            });
+        }
 
         res.json({
-            success:true,
-            count:properties.length,
+            reply: `I found ${properties.length} matching properties.`,
             properties
         });
 
-    }
+    } catch (err) {
 
-    catch(err){
-
-        res.status(500).json({
-            success:false,
-            message:err.message
-        });
-
-    }
-
-}
-
-const compareProperties = async(req,res)=>{
-
-    try{
-
-        const { ids } = req.body;
-
-        const properties = await Plot.find({
-            _id:{
-                $in:ids
-            }
-        });
-
-        res.json({
-            success:true,
-            properties
-        });
-
-    }
-
-    catch(err){
+        console.error(err);
 
         res.status(500).json({
-            success:false,
-            message:err.message
+            reply: "Something went wrong."
         });
 
     }
-
-}
-const chatAI = async (req, res) => {
-    const { message } = req.body;
-
-    // Later we'll replace this with OpenAI/Botpress logic.
-
-    res.json({
-        reply: "You asked: " + message
-    });
 };
-module.exports={searchProperties,compareProperties,chatAI};
+
+module.exports = {
+    searchProperties,
+    compareProperties,
+    chatAI
+};

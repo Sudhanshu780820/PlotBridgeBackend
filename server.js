@@ -10,7 +10,8 @@ const authRoutes = require('./routes/authRouter');
 const dashboardRoutes= require('./routes/dashboardRoutes');
 const conversationRoutes=require('./routes/conversationRoutes');
 const messageRoutes=require('./routes/messageRoutes');
-const savedRoutes=require('./routes/savedRoutes')
+const savedRoutes=require('./routes/savedRoutes');
+const aiRoutes=require('./routes/aiRoutes')
 require('dotenv').config();
 
 const app = express();
@@ -65,6 +66,7 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/conversations', conversationRoutes);
 app.use('/api/messages',messageRoutes);
 app.use("/api/saved-properties", savedRoutes);
+app.use("api/ai",aiRoutes);
 
 app.get('/api/test', (req, res) => {
   res.json({ message: 'Backend working' });

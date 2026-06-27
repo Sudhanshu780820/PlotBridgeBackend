@@ -1,6 +1,6 @@
 const Plot = require("../models/Plot");
 
-exports.searchProperties = async (req, res) => {
+const searchProperties = async (req, res) => {
 
     try {
 
@@ -72,7 +72,7 @@ exports.searchProperties = async (req, res) => {
 
 }
 
-exports.compareProperties = async(req,res)=>{
+const compareProperties = async(req,res)=>{
 
     try{
 
@@ -101,7 +101,7 @@ exports.compareProperties = async(req,res)=>{
     }
 
 }
-exports.chatAI = async (req, res) => {
+const chatAI = async (req, res) => {
     const { message } = req.body;
 
     // Later we'll replace this with OpenAI/Botpress logic.
@@ -110,3 +110,4 @@ exports.chatAI = async (req, res) => {
         reply: "You asked: " + message
     });
 };
+module.exports={searchProperties,compareProperties,chatAI};
